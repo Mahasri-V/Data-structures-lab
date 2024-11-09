@@ -1,0 +1,129 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+typedef struct Song {
+    char title[100];
+    struct Song *next;
+} Song;
+
+
+typedef struct {
+    Song *head;
+} Playlist;
+
+void initializePlaylist(Playlist *playlist);
+void addSong(Playlist *playlist, const char *title);
+void removeSong(Playlist *playlist, const char *title);
+void displayPlaylist(const Playlist *playlist);
+
+int main() {
+    Playlist playlist;
+    initializePlaylist(&playlist);
+
+    int choice;
+    char title[100];
+
+    while (1) {
+        printf("\nMusic Playlist Application\n");
+        printf("1. Add Song\n");
+        printf("2. Remove Song\n");
+        printf("3. Display Playlist\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); 
+
+        switch (choice) {
+            case 1:
+                printf("Enter song title: ");
+                fgets(title, sizeof(title), stdin);
+                title[strcspn(title, "\n")] = '\0'; 
+                addSong(&playlist, title);
+                break;
+            case 2:
+                printf("Enter song title to remove: ");
+                fgets(title, sizeof(title), stdin);
+                title[strcspn(title, "\n")] = '\0';
+                removeSong(&playlist, title);
+                break;
+            case 3:
+                displayPlaylist(&playlist);
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+
+void initializePlaylist(Playlist *playlist) {
+    playlist->head = NULL;
+}
+
+
+void addSong(Playlist *playlist, const char *title) {
+    Song *newSong = (Song *)malloc(sizeof(Song));
+    if (!newSong) {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+    strcpy(newSong->title, title);
+    newSong->next = NULL;
+
+    if (playlist->head == NULL) {
+        playlist->head = newSong;
+    } else {
+        Song *current = playlist->head;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newSong;
+    }
+    printf("Song added successfully.\n");
+}
+
+void removeSong(Playlist *playlist, const char *title) {
+    if (playlist->head == NULL) {
+        printf("The playlist is empty.\n");
+        return;
+    }
+
+    Song *current = playlist->head;
+    Song *previous = NULL;
+
+    while (current != NULL && strcmp(current->title, title) != 0) {
+        previous = current;
+        current = current->next;
+    }
+
+    if (current == NULL) {
+        printf("Song not found in the playlist.\n");
+    } else {
+        if (previous == NULL) { 
+            playlist->head = current->next;
+        } else {
+            previous->next = current->next;
+        }
+        free(current);
+        printf("Song removed successfully.\n");
+    }
+}
+void displayPlaylist(const Playlist *playlist) {
+    if (playlist->head == NULL) {
+        printf("The playlist is empty.\n");
+    } else {
+        printf("\nCurrent Playlist:\n");
+        Song *current = playlist->head;
+        int i = 1;
+        while (current != NULL) {
+            printf("Song %d: %s\n", i++, current->title);
+            current = current->next;
+        }
+    }
+}
