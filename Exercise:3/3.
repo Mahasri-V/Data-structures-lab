@@ -1,0 +1,110 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_QUEUE_SIZE 5 
+
+typedef struct {
+    int front; 
+    int rear;   
+    int size;   
+    char calls[MAX_QUEUE_SIZE][100];  
+} CallQueue;
+
+
+void initializeQueue(CallQueue *queue);
+int isFull(CallQueue *queue);
+int isEmpty(CallQueue *queue);
+void enqueue(CallQueue *queue, const char *call);
+void dequeue(CallQueue *queue);
+void displayQueue(CallQueue *queue);
+
+int main() {
+    CallQueue queue;
+    initializeQueue(&queue);
+
+    int choice;
+    char call[100];
+
+    while (1) {
+        printf("\nCall Center Application\n");
+        printf("1. Enqueue Incoming Call\n");
+        printf("2. Dequeue Call (Serve Call)\n");
+        printf("3. Display Call Queue\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();  
+
+        switch (choice) {
+            case 1:
+                printf("Enter call description: ");
+                fgets(call, sizeof(call), stdin);
+                call[strcspn(call, "\n")] = '\0';
+                enqueue(&queue, call);
+                break;
+            case 2:
+                dequeue(&queue);
+                break;
+            case 3:
+                displayQueue(&queue);
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+void initializeQueue(CallQueue *queue) {
+    queue->front = 0;
+    queue->rear = -1;
+    queue->size = 0;
+}
+
+
+int isFull(CallQueue *queue) {
+    return queue->size == MAX_QUEUE_SIZE;
+}
+
+
+int isEmpty(CallQueue *queue) {
+    return queue->size == 0;
+}
+
+void enqueue(CallQueue *queue, const char *call) {
+    if (isFull(queue)) {
+        printf("Queue is full. Cannot enqueue new call.\n");
+        return;
+    }
+    queue->rear = (queue->rear + 1) % MAX_QUEUE_SIZE;  
+    snprintf(queue->calls[queue->rear], sizeof(queue->calls[queue->rear]), "%s", call);
+    queue->size++;
+    printf("Call added to queue: %s\n", call);
+}
+
+void dequeue(CallQueue *queue) {
+    if (isEmpty(queue)) {
+        printf("No calls in the queue to serve.\n");
+        return;
+    }
+    printf("Serving call: %s\n", queue->calls[queue->front]);
+    queue->front = (queue->front + 1) % MAX_QUEUE_SIZE;  
+    queue->size--;
+}
+
+// Display the current call queue
+void displayQueue(CallQueue *queue) {
+    if (isEmpty(queue)) {
+        printf("No calls in the queue.\n");
+        return;
+    }
+    printf("\nCurrent Call Queue:\n");
+    int i = queue->front;
+    for (int j = 0; j < queue->size; j++) {
+        printf("Call %d: %s\n", j + 1, queue->calls[i]);
+        i = (i + 1) % MAX_QUEUE_SIZE; 
+    }
+}
