@@ -1,0 +1,108 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_QUEUE_SIZE 5  
+
+// Define the Queue structure
+typedef struct {
+    int front;  
+    int rear;  
+    int size;   
+    char jobs[MAX_QUEUE_SIZE][100]; 
+} PrintQueue;
+
+
+void initializeQueue(PrintQueue *queue);
+int isFull(PrintQueue *queue);
+int isEmpty(PrintQueue *queue);
+void enqueue(PrintQueue *queue, const char *job);
+void dequeue(PrintQueue *queue);
+void displayQueue(PrintQueue *queue);
+
+int main() {
+    PrintQueue queue;
+    initializeQueue(&queue);
+    
+    int choice;
+    char job[100];
+
+    while (1) {
+        printf("\nPrint Queue System\n");
+        printf("1. Enqueue Print Job\n");
+        printf("2. Dequeue Print Job\n");
+        printf("3. Display Print Queue\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();
+
+        switch (choice) {
+            case 1:
+                printf("Enter print job description: ");
+                fgets(job, sizeof(job), stdin);
+                job[strcspn(job, "\n")] = '\0';  
+                enqueue(&queue, job);
+                break;
+            case 2:
+                dequeue(&queue);
+                break;
+            case 3:
+                displayQueue(&queue);
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+
+void initializeQueue(PrintQueue *queue) {
+    queue->front = 0;
+    queue->rear = -1;
+    queue->size = 0;
+}
+
+
+int isFull(PrintQueue *queue) {
+    return queue->size == MAX_QUEUE_SIZE;
+}
+int isEmpty(PrintQueue *queue) {
+    return queue->size == 0;
+}
+
+void enqueue(PrintQueue *queue, const char *job) {
+    if (isFull(queue)) {
+        printf("Queue is full. Cannot enqueue new job.\n");
+        return;
+    }
+    queue->rear = (queue->rear + 1) % MAX_QUEUE_SIZE;  
+    snprintf(queue->jobs[queue->rear], sizeof(queue->jobs[queue->rear]), "%s", job);
+    queue->size++;
+    printf("Print job enqueued: %s\n", job);
+}
+
+void dequeue(PrintQueue *queue) {
+    if (isEmpty(queue)) {
+        printf("Queue is empty. No job to dequeue.\n");
+        return;
+    }
+    printf("Dequeueing print job: %s\n", queue->jobs[queue->front]);
+    queue->front = (queue->front + 1) % MAX_QUEUE_SIZE;  
+    queue->size--;
+}
+void displayQueue(PrintQueue *queue) {
+    if (isEmpty(queue)) {
+        printf("Queue is empty.\n");
+        return;
+    }
+    printf("\nCurrent Print Queue:\n");
+    int i = queue->front;
+    for (int j = 0; j < queue->size; j++) {
+        printf("Job %d: %s\n", j + 1, queue->jobs[i]);
+        i = (i + 1) % MAX_QUEUE_SIZE;  
+    }
+}
