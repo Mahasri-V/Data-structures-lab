@@ -1,0 +1,67 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+#define TABLE_SIZE 100
+
+typedef struct Node{
+    int productID;
+    struct Node* next;
+}Node;
+
+int hashFunction(int productID){
+    return productID % TABLE_SIZE;
+}
+
+void insertProduct(Node** hashTable,int productID){
+    int index=hashFunction(productID);
+    Node* newNode=(Node*)malloc(sizeof(Node));
+    newNode->productID=productID;
+    newNode->next=hashTable[index];
+    hashTable[index]=newNode;
+}
+
+int searchProduct(Node** hashTable,int productID){
+    int index=hashFunction(productID);
+    Node* current=hashTable[index];
+    while(current!=NULL){
+        if(current->productID==productID){
+            return 1;
+        }
+        current=current->next;
+    }
+    return 0;
+}
+
+int main(){
+    
+    Node* hashTable[TABLE_SIZE] ={NULL};
+    int numProducts,productID;
+    printf("Enter the number of products: ");
+    scanf("%d",&numProducts);
+
+    for(int i=0;i<numProducts;i++){
+        printf("Enter product ID %d: ",i+1);
+        scanf("%d",&productID);
+        insertProduct(hashTable,productID);
+    }
+
+    printf("Enter the product ID to search for: ");
+    scanf("%d",&productID);
+    if(searchProduct(hashTable,productID)){
+        printf("Product ID %d found.\n",productID);
+    }else{
+        printf("Product ID %d not found.\n",productID);
+    }
+
+
+    for(int i=0;i<TABLE_SIZE;i++){
+        Node* current=hashTable[i];
+        while(current!=NULL){
+            Node* temp=current;
+            current=current->next;
+            free(temp);
+        }
+    }
+
+    return 0;
+}
