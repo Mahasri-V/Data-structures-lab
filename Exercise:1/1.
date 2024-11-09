@@ -40,10 +40,10 @@ int main() {
             case 1:
                 printf("Enter name: ");
                 fgets(name, sizeof(name), stdin);
-                name[strcspn(name, "\n")] = '\0'; // Remove newline character
+                name[strcspn(name, "\n")] = '\0';
                 printf("Enter phone number: ");
                 fgets(phone, sizeof(phone), stdin);
-                phone[strcspn(phone, "\n")] = '\0'; // Remove newline character
+                phone[strcspn(phone, "\n")] = '\0'; 
                 addContact(&list, name, phone);
                 break;
             case 2:
