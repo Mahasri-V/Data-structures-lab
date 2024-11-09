@@ -1,0 +1,108 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_QUEUE_SIZE 5  
+
+// Define the Queue structure
+typedef struct {
+    int front;  // Index of the front of the queue
+    int rear;   // Index of the rear of the queue
+    int size;   // Current size of the queue
+    char customers[MAX_QUEUE_SIZE][100];  
+} TicketQueue;
+
+void initializeQueue(TicketQueue *queue);
+int isFull(TicketQueue *queue);
+int isEmpty(TicketQueue *queue);
+void addCustomer(TicketQueue *queue, const char *customer);
+void serveCustomer(TicketQueue *queue);
+void displayQueue(TicketQueue *queue);
+
+int main() {
+    TicketQueue queue;
+    initializeQueue(&queue);
+
+    int choice;
+    char customer[100];
+
+    while (1) {
+        printf("\nTicket Booking System\n");
+        printf("1. Add Customer\n");
+        printf("2. Serve Next Customer\n");
+        printf("3. Display Customer Queue\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); 
+
+        switch (choice) {
+            case 1:
+                printf("Enter customer name: ");
+                fgets(customer, sizeof(customer), stdin);
+                customer[strcspn(customer, "\n")] = '\0';  
+                addCustomer(&queue, customer);
+                break;
+            case 2:
+                serveCustomer(&queue);
+                break;
+            case 3:
+                displayQueue(&queue);
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+void initializeQueue(TicketQueue *queue) {
+    queue->front = 0;
+    queue->rear = -1;
+    queue->size = 0;
+}
+
+int isFull(TicketQueue *queue) {
+    return queue->size == MAX_QUEUE_SIZE;
+}
+
+
+int isEmpty(TicketQueue *queue) {
+    return queue->size == 0;
+}
+
+
+void addCustomer(TicketQueue *queue, const char *customer) {
+    if (isFull(queue)) {
+        printf("Queue is full. Cannot add new customer.\n");
+        return;
+    }
+    queue->rear = (queue->rear + 1) % MAX_QUEUE_SIZE;  
+    snprintf(queue->customers[queue->rear], sizeof(queue->customers[queue->rear]), "%s", customer);
+    queue->size++;
+    printf("Customer added: %s\n", customer);
+}
+
+void serveCustomer(TicketQueue *queue) {
+    if (isEmpty(queue)) {
+        printf("No customers in the queue to serve.\n");
+        return;
+    }
+    printf("Serving customer: %s\n", queue->customers[queue->front]);
+    queue->front = (queue->front + 1) % MAX_QUEUE_SIZE; 
+    queue->size--;
+}
+void displayQueue(TicketQueue *queue) {
+    if (isEmpty(queue)) {
+        printf("No customers in the queue.\n");
+        return;
+    }
+    printf("\nCurrent Customer Queue:\n");
+    int i = queue->front;
+    for (int j = 0; j < queue->size; j++) {
+        printf("Customer %d: %s\n", j + 1, queue->customers[i]);
+        i = (i + 1) % MAX_QUEUE_SIZE;  
+    }
+}
