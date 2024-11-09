@@ -1,0 +1,97 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_HISTORY 100
+#define MAX_TEXT_LENGTH
+typedef struct {
+    char changes[MAX_HISTORY][MAX_TEXT_LENGTH]; 
+    int top;                                    
+} ChangeStack;
+
+void initializeStack(ChangeStack *stack);
+void pushChange(ChangeStack *stack, const char *text);
+void popChange(ChangeStack *stack, char *text);
+void displayCurrentText(const char *text);
+
+int main() {
+    ChangeStack stack;
+    initializeStack(&stack);
+
+    char currentText[MAX_TEXT_LENGTH] = ""; 
+    int choice;
+    char newText[MAX_TEXT_LENGTH];
+
+    while (1) {
+        printf("\nSimple Text Editor with Undo\n");
+        printf("Current Text: \"%s\"\n", currentText);
+        printf("1. Add Text\n");
+        printf("2. Undo Last Change\n");
+        printf("3. Display Current Text\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();  
+
+        switch (choice) {
+            case 1:
+               
+                pushChange(&stack, currentText);
+                printf("Enter new text: ");
+                fgets(newText, sizeof(newText), stdin);
+                newText[strcspn(newText, "\n")] = '\0'; 
+                strcpy(currentText, newText); 
+                printf("Text updated.\n");
+                break;
+
+            case 2:
+                
+                if (stack.top == -1) {
+                    printf("No changes to undo.\n");
+                } else {
+                    popChange(&stack, currentText);
+                    printf("Undo successful. Current text reverted.\n");
+                }
+                break;
+
+            case 3:
+                displayCurrentText(currentText);
+                break;
+
+            case 4:
+                printf("Exiting program.\n");
+                return 0;
+
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+void initializeStack(ChangeStack *stack) {
+    stack->top = -1;
+}
+
+void pushChange(ChangeStack *stack, const char *text) {
+    if (stack->top >= MAX_HISTORY - 1) {
+        printf("Undo history is full! Cannot add more changes.\n");
+        return;
+    }
+    stack->top++;
+    strcpy(stack->changes[stack->top], text);
+}
+
+
+void popChange(ChangeStack *stack, char *text) {
+    if (stack->top == -1) {
+        printf("No changes to undo.\n");
+        return;
+    }
+    strcpy(text, stack->changes[stack->top]);
+    stack->top--;
+}
+
+void displayCurrentText(const char *text) {
+    printf("Current Text: \"%s\"\n", text);
+}
