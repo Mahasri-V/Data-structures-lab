@@ -1,0 +1,91 @@
+#include <stdio.h>
+
+#define MAX_GRADES 100
+
+typedef struct {
+    int grades[MAX_GRADES];
+    int size;
+} GradeList;
+
+void initializeList(GradeList *list);
+void addGrade(GradeList *list, int grade);
+double calculateAverage(const GradeList *list);
+void displayGrades(const GradeList *list);
+
+int main() {
+    GradeList list;
+    initializeList(&list);
+
+    int choice;
+    int grade;
+
+    while (1) {
+        printf("\nGrade Management System\n");
+        printf("1. Add Grade\n");
+        printf("2. Display All Grades\n");
+        printf("3. Calculate Average Grade\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter grade: ");
+                scanf("%d", &grade);
+                addGrade(&list, grade);
+                break;
+            case 2:
+                displayGrades(&list);
+                break;
+            case 3:
+                printf("Average Grade: %.2f\n", calculateAverage(&list));
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+void initializeList(GradeList *list) {
+    list->size = 0;
+}
+
+
+void addGrade(GradeList *list, int grade) {
+    if (list->size >= MAX_GRADES) {
+        printf("Grade list is full!\n");
+        return;
+    }
+    list->grades[list->size] = grade;
+    list->size++;
+    printf("Grade added successfully.\n");
+}
+
+double calculateAverage(const GradeList *list) {
+    if (list->size == 0) {
+        printf("No grades to calculate average.\n");
+        return 0.0;
+    }
+
+    int sum = 0;
+    for (int i = 0; i < list->size; i++) {
+        sum += list->grades[i];
+    }
+    return (double)sum / list->size;
+}
+
+// Display all grades in the list
+void displayGrades(const GradeList *list) {
+    if (list->size == 0) {
+        printf("No grades to display.\n");
+    } else {
+        printf("\nAll Grades:\n");
+        for (int i = 0; i < list->size; i++) {
+            printf("Grade %d: %d\n", i + 1, list->grades[i]);
+        }
+    }
+}
