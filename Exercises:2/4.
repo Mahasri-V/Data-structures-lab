@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct Move {
+    char description[100];    
+    struct Move *next;     
+} Move;
+
+// Stack structure to store moves
+typedef struct {
+    Move *top;               
+} MoveStack;
+void initializeStack(MoveStack *stack);
+void pushMove(MoveStack *stack, const char *description);
+void popMove(MoveStack *stack);
+void displayMoves(const MoveStack *stack);
+
+int main() {
+    MoveStack stack;
+    initializeStack(&stack);
+
+    int choice;
+    char description[100];
+
+    while (1) {
+        printf("\nGame Move Tracker\n");
+        printf("1. Add Move\n");
+        printf("2. Undo Last Move\n");
+        printf("3. Display Move History\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();  
+
+        switch (choice) {
+            case 1:
+                printf("Enter move description: ");
+                fgets(description, sizeof(description), stdin);
+                description[strcspn(description, "\n")] = '\0';  
+                pushMove(&stack, description);
+                break;
+            case 2:
+                popMove(&stack);
+                break;
+            case 3:
+                displayMoves(&stack);
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+void initializeStack(MoveStack *stack) {
+    stack->top = NULL;  
+}
+
+void pushMove(MoveStack *stack, const char *description) {
+    Move *newMove = (Move *)malloc(sizeof(Move));
+    if (newMove == NULL) {
+        printf("Memory allocation failed\n");
+        return;
+    }
+    strcpy(newMove->description, description);
+    newMove->next = stack->top;
+    stack->top = newMove;
+    printf("Move added: %s\n", description);
+}
+
+void popMove(MoveStack *stack) {
+    if (stack->top == NULL) {
+        printf("No moves to undo.\n");
+        return;
+    }
+    Move *temp = stack->top;
+    printf("Undoing move: %s\n", temp->description);
+    stack->top = stack->top->next;
+    free(temp);
+}
+void displayMoves(const MoveStack *stack) {
+    if (stack->top == NULL) {
+        printf("No moves to display.\n");
+        return;
+    }
+    printf("\nMove History:\n");
+    Move *current = stack->top;
+    int moveCount = 1;
+    while (current != NULL) {
+        printf("Move %d: %s\n", moveCount++, current->description);
+        current = current->next;
+    }
+}
