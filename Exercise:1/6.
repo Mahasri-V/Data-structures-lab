@@ -1,0 +1,158 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct Book {
+    char title[100];
+    struct Book *next;
+    struct Book *prev;
+} Book;
+typedef struct {
+    Book *head;
+} Library;
+
+
+void initializeLibrary(Library *library);
+void addBook(Library *library, const char *title);
+void removeBook(Library *library, const char *title);
+void displayBooksForward(const Library *library);
+void displayBooksReverse(const Library *library);
+
+int main() {
+    Library library;
+    initializeLibrary(&library);
+
+    int choice;
+    char title[100];
+
+    while (1) {
+        printf("\nLibrary Management System\n");
+        printf("1. Add Book\n");
+        printf("2. Remove Book\n");
+        printf("3. Display Books Forward\n");
+        printf("4. Display Books Reverse\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); 
+
+        switch (choice) {
+            case 1:
+                printf("Enter book title: ");
+                fgets(title, sizeof(title), stdin);
+                title[strcspn(title, "\n")] = '\0'; 
+                addBook(&library, title);
+                break;
+            case 2:
+                printf("Enter book title to remove: ");
+                fgets(title, sizeof(title), stdin);
+                title[strcspn(title, "\n")] = '\0';
+                removeBook(&library, title);
+                break;
+            case 3:
+                displayBooksForward(&library);
+                break;
+            case 4:
+                displayBooksReverse(&library);
+                break;
+            case 5:
+                printf("Exiting program.\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+
+void initializeLibrary(Library *library) {
+    library->head = NULL;
+}
+
+
+void addBook(Library *library, const char *title) {
+    Book *newBook = (Book *)malloc(sizeof(Book));
+    if (!newBook) {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+    strcpy(newBook->title, title);
+    newBook->next = NULL;
+
+    if (library->head == NULL) {
+        newBook->prev = NULL;
+        library->head = newBook;
+    } else {
+        Book *current = library->head;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newBook;
+        newBook->prev = current;
+    }
+    printf("Book added successfully.\n");
+}
+
+
+void removeBook(Library *library, const char *title) {
+    if (library->head == NULL) {
+        printf("The library is empty.\n");
+        return;
+    }
+
+    Book *current = library->head;
+
+    
+    while (current != NULL && strcmp(current->title, title) != 0) {
+        current = current->next;
+    }
+
+    if (current == NULL) {
+        printf("Book not found in the library.\n");
+    } else {
+        if (current->prev != NULL) {
+            current->prev->next = current->next;
+        } else {
+            library->head = current->next;
+        }
+
+        if (current->next != NULL) {
+            current->next->prev = current->prev;
+        }
+        free(current);
+        printf("Book removed successfully.\n");
+    }
+}
+
+
+void displayBooksForward(const Library *library) {
+    if (library->head == NULL) {
+        printf("The library is empty.\n");
+    } else {
+        printf("\nBooks in the Library (Forward Order):\n");
+        Book *current = library->head;
+        int i = 1;
+        while (current != NULL) {
+            printf("Book %d: %s\n", i++, current->title);
+            current = current->next;
+        }
+    }
+}
+
+void displayBooksReverse(const Library *library) {
+    if (library->head == NULL) {
+        printf("The library is empty.\n");
+    } else {
+        printf("\nBooks in the Library (Reverse Order):\n");
+        Book *current = library->head;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        
+        int i = 1;
+        while (current != NULL) {
+            printf("Book %d: %s\n", i++, current->title);
+            current = current->prev;
+        }
+    }
+}
