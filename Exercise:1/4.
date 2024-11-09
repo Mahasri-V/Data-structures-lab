@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Task {
+    char description[100];
+    struct Task *next;
+} Task;
+
+typedef struct {
+    Task *head;
+} TaskList;
+
+
+void initializeList(TaskList *list);
+void addTaskAtBeginning(TaskList *list, const char *description);
+void removeTaskFromEnd(TaskList *list);
+void displayTasks(const TaskList *list);
+
+int main() {
+    TaskList list;
+    initializeList(&list);
+
+    int choice;
+    char description[100];
+
+    while (1) {
+        printf("\nTask Management System\n");
+        printf("1. Add Task at Beginning\n");
+        printf("2. Remove Task from End\n");
+        printf("3. Display All Tasks\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); 
+
+        switch (choice) {
+            case 1:
+                printf("Enter task description: ");
+                fgets(description, sizeof(description), stdin);
+                description[strcspn(description, "\n")] = '\0'; 
+                addTaskAtBeginning(&list, description);
+                break;
+            case 2:
+                removeTaskFromEnd(&list);
+                break;
+            case 3:
+                displayTasks(&list);
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+
+void initializeList(TaskList *list) {
+    list->head = NULL;
+}
+
+void addTaskAtBeginning(TaskList *list, const char *description) {
+    Task *newTask = (Task *)malloc(sizeof(Task));
+    if (!newTask) {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+    strcpy(newTask->description, description);
+    newTask->next = list->head;
+    list->head = newTask;
+    printf("Task added successfully.\n");
+}
+
+// Remove a task from the end of the list
+void removeTaskFromEnd(TaskList *list) {
+    if (list->head == NULL) {
+        printf("No tasks to remove.\n");
+        return;
+    }
+
+    if (list->head->next == NULL) {
+        free(list->head);
+        list->head = NULL;
+        printf("Task removed successfully.\n");
+        return;
+    }
+
+    Task *current = list->head;
+    while (current->next->next != NULL) {
+        current = current->next;
+    }
+
+    // Remove the last node
+    free(current->next);
+    current->next = NULL;
+    printf("Task removed successfully.\n");
+}
+
+
+void displayTasks(const TaskList *list) {
+    if (list->head == NULL) {
+        printf("No tasks to display.\n");
+    } else {
+        printf("\nCurrent Tasks:\n");
+        Task *current = list->head;
+        int i = 1;
+        while (current != NULL) {
+            printf("Task %d: %s\n", i++, current->description);
+            current = current->next;
+        }
+    }
+}
