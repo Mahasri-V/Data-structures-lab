@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct Node {
+    char data;          
+    struct Node* next;   
+} Node;
+
+typedef struct {
+    Node* top;           
+} Stack;
+
+
+void initializeStack(Stack* stack);
+int isEmpty(Stack* stack);
+void push(Stack* stack, char c);
+char pop(Stack* stack);
+int isValidSyntax(const char* expression);
+
+int main() {
+    char expression[100];
+    
+    printf("Enter the expression to check for valid syntax: ");
+    fgets(expression, sizeof(expression), stdin);
+    
+    if (isValidSyntax(expression)) {
+        printf("The syntax is valid.\n");
+    } else {
+        printf("The syntax is invalid.\n");
+    }
+
+    return 0;
+}
+
+
+void initializeStack(Stack* stack) {
+    stack->top = NULL;
+}
+
+int isEmpty(Stack* stack) {
+    return stack->top == NULL;
+}
+
+
+void push(Stack* stack, char c) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (!newNode) {
+        printf("Memory allocation failed\n");
+        exit(1);
+    }
+    newNode->data = c;
+    newNode->next = stack->top;
+    stack->top = newNode;
+}
+
+char pop(Stack* stack) {
+    if (isEmpty(stack)) {
+        return '\0'; 
+    }
+    Node* temp = stack->top;
+    char popped = temp->data;
+    stack->top = stack->top->next;
+    free(temp);
+    return popped;
+}
+int isValidSyntax(const char* expression) {
+    Stack stack;
+    initializeStack(&stack);
+    for (int i = 0; expression[i] != '\0'; i++) {
+        char c = expression[i];
+
+        if (c == '(' || c == '{' || c == '[') {
+           
+            push(&stack, c);
+        } else if (c == ')' || c == '}' || c == ']') {
+         
+            if (isEmpty(&stack)) {
+                return 0;  
+            }
+
+            char top = pop(&stack);
+            if ((c == ')' && top != '(') || 
+                (c == '}' && top != '{') || 
+                (c == ']' && top != '[')) {
+                return 0;
+    return isEmpty(&stack);
+}
