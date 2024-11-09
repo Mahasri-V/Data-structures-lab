@@ -1,0 +1,36 @@
+#include<stdio.h>
+#include<string.h>
+
+typedef struct{
+    int id;
+    char name[50];
+    float gpa;
+} Student;
+
+void searchStudent(Student students[],int n,int searchID){
+    for(int i=0;i<n;i++){
+        if(students[i].id==searchID){
+            printf("Record Found:\nID: %d\nName: %s\nGPA: %.2f\n",students[i].id,students[i].name,students[i].gpa);
+            return;
+        }
+    }
+    printf("Record not found for Student ID %d\n",searchID);
+}
+
+int main(){
+    int n,searchID;
+    printf("Enter the number of students: ");
+    scanf("%d",&n);
+
+    Student students[n];
+    for(int i=0;i<n;i++){
+        printf("Enter ID,Name,and GPA for student %d:\n",i+1);
+        scanf("%d %s %f",&students[i].id,students[i].name,&students[i].gpa);
+    }
+
+    printf("Enter Student ID to search: ");
+    scanf("%d",&searchID);
+
+    searchStudent(students,n,searchID);
+
+}
