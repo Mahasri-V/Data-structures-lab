@@ -1,0 +1,89 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+#define TABLE_SIZE 100
+
+typedef struct ArticleNode{
+    char* title;
+    char* content;
+    struct ArticleNode* next;
+}ArticleNode;
+
+int hashFunction(char* title){
+    int hash=0;
+    while(*title){
+        hash=(hash+*title) % TABLE_SIZE;
+        title++;
+    }
+    return hash;
+}
+
+void insertArticle(ArticleNode** hashTable,char* title,char* content){
+    int index=hashFunction(title);
+    ArticleNode* newNode=(ArticleNode*)malloc(sizeof(ArticleNode));
+    newNode->title=strdup(title);
+    newNode->content=strdup(content);
+    newNode->next=hashTable[index];
+    hashTable[index]=newNode;
+}
+
+ArticleNode* searchArticle(ArticleNode** hashTable,char* title){
+    int index=hashFunction(title);
+    ArticleNode* current=hashTable[index];
+    while(current!=NULL){
+        if(strcmp(current->title,title)==0){
+            return current;// Found
+        }
+        current=current->next;
+    }
+    return NULL;
+}
+
+int main(){
+    ArticleNode* hashTable[TABLE_SIZE] ={ NULL };
+    int numArticles;
+    char title[100],content[1000];
+
+    printf("Enter the number of articles: ");
+    scanf("%d",&numArticles);
+    getchar();
+
+    for(int i=0;i<numArticles;i++){
+        printf("Enter title of article %d: ",i+1);
+        fgets(title,sizeof(title),stdin);
+        title[strcspn(title,"\n")]='\0';// Remove newline character
+
+        printf("Enter content of article %d: ",i+1);
+        fgets(content,sizeof(content),stdin);
+        content[strcspn(content,"\n")]='\0';// Remove newline character
+
+        insertArticle(hashTable,title,content);
+    }
+
+    
+    printf("Enter the title to search for: ");
+    fgets(title,sizeof(title),stdin);
+    title[strcspn(title,"\n")]='\0';// Remove newline character
+
+    ArticleNode* result=searchArticle(hashTable,title);
+    if(result!=NULL){
+        printf("Article found: %s\nContent: %s\n",result->title,result->content);
+    }else{
+        printf("Article '%s' not found.\n",title);
+    }
+
+    
+    for(int i=0;i<TABLE_SIZE;i++){
+        ArticleNode* current=hashTable[i];
+        while(current!=NULL){
+            ArticleNode* temp=current;
+            current=current->next;
+            free(temp->title);
+            free(temp->content);
+            free(temp);
+        }
+    }
+
+    return 0;
+}
