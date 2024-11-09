@@ -1,0 +1,75 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+typedef struct{
+    char *name;
+    char *phoneNumber;
+} Contact;
+
+int searchContact(Contact *contacts,int numContacts,char *target){
+    for (int i=0;i< numContacts;i++){
+        if (strcmp(contacts[i].name,target)==0){
+            return i;// Return the index if found
+        }
+    }
+    return -1;// Return -1 if not found
+}
+
+int main(){
+    int numContacts;
+    printf("Enter the number of contacts: ");
+    scanf("%d",&numContacts);
+
+    Contact *contacts=(Contact *)malloc(numContacts*sizeof(Contact));
+    if (contacts==NULL){
+        printf("Memory allocation failed.\n");
+        return 1;
+    }
+
+
+    char buffer[50];
+    getchar();  
+    for (int i=0;i< numContacts;i++){
+
+        printf("Enter name of contact %d: ",i + 1);
+        fgets(buffer,sizeof(buffer),stdin);
+        buffer[strcspn(buffer,"\n")]='\0';// Remove newline character
+        contacts[i].name=(char *)malloc((strlen(buffer) + 1)*sizeof(char));
+        if (contacts[i].name==NULL){
+            printf("Memory allocation failed for contact name.\n");
+            return 1;
+        }
+        strcpy(contacts[i].name,buffer);
+
+        printf("Enter phone number of contact %d: ",i + 1);
+        fgets(buffer,sizeof(buffer),stdin);
+        buffer[strcspn(buffer,"\n")]='\0';
+        contacts[i].phoneNumber=(char *)malloc((strlen(buffer) + 1)*sizeof(char));
+        if (contacts[i].phoneNumber==NULL){
+            printf("Memory allocation failed for phone number.\n");
+            return 1;
+        }
+        strcpy(contacts[i].phoneNumber,buffer);
+    }
+
+    char target[50];
+    printf("Enter the name to search for: ");
+    fgets(target,sizeof(target),stdin);
+    target[strcspn(target,"\n")]='\0';// Remove newline character
+
+    int result=searchContact(contacts,numContacts,target);
+    if (result != -1){
+        printf("Contact found: %s,Phone Number: %s\n",contacts[result].name,contacts[result].phoneNumber);
+    } else{
+        printf("Contact '%s' not found.\n",target);
+    }
+
+    for (int i=0;i< numContacts;i++){
+        free(contacts[i].name);
+        free(contacts[i].phoneNumber);
+    }
+    free(contacts);
+
+    return 0;
+}
