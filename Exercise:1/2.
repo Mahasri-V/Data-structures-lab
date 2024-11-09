@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_ITEMS 100
+
+typedef struct {
+    char name[50];
+} Item;
+
+typedef struct {
+    Item items[MAX_ITEMS];
+    int size;
+} ShoppingList;
+
+void initializeList(ShoppingList *list);
+void addItem(ShoppingList *list, const char *name);
+void removeItem(ShoppingList *list, const char *name);
+void displayList(const ShoppingList *list);
+
+int main() {
+    ShoppingList list;
+    initializeList(&list);
+
+    int choice;
+    char name[50];
+
+    while (1) {
+        printf("\nShopping List Application\n");
+        printf("1. Add Item\n");
+        printf("2. Remove Item\n");
+        printf("3. Display List\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); 
+
+        switch (choice) {
+            case 1:
+                printf("Enter item name: ");
+                fgets(name, sizeof(name), stdin);
+                name[strcspn(name, "\n")] = '\0'; // Remove newline character
+                addItem(&list, name);
+                break;
+            case 2:
+                printf("Enter item name to remove: ");
+                fgets(name, sizeof(name), stdin);
+                name[strcspn(name, "\n")] = '\0';
+                removeItem(&list, name);
+                break;
+            case 3:
+                displayList(&list);
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+void initializeList(ShoppingList *list) {
+    list->size = 0;
+}
+
+
+void addItem(ShoppingList *list, const char *name) {
+    if (list->size >= MAX_ITEMS) {
+        printf("Shopping list is full!\n");
+        return;
+    }
+    strcpy(list->items[list->size].name, name);
+    list->size++;
+    printf("Item added successfully.\n");
+}
+void removeItem(ShoppingList *list, const char *name) {
+    int i, found = 0;
+    for (i = 0; i < list->size; i++) {
+        if (strcmp(list->items[i].name, name) == 0) {
+            found = 1;
+            break;
+        }
+    }
+
+    if (found) {
+        for (int j = i; j < list->size - 1; j++) {
+            list->items[j] = list->items[j + 1];
+        }
+        list->size--;
+        printf("Item removed successfully.\n");
+    } else {
+        printf("Item not found in the list.\n");
+    }
+}
+void displayList(const ShoppingList *list) {
+    if (list->size == 0) {
+        printf("The shopping list is empty.\n");
+    } else {
+        printf("\nCurrent Shopping List:\n");
+        for (int i = 0; i < list->size; i++) {
+            printf("- %s\n", list->items[i].name);
+        }
+    }
+}
