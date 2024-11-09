@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Inquiry {
+    char inquiry[256]; 
+    struct Inquiry* next; 
+} Inquiry;
+typedef struct Queue {
+    Inquiry* front; 
+    Inquiry* rear; 
+} Queue;
+
+
+Queue* createQueue() {
+    Queue* queue = (Queue*)malloc(sizeof(Queue));
+    queue->front = queue->rear = NULL;
+    return queue;
+}
+
+void addInquiry(Queue* queue, const char* inquiryMessage) {
+   
+    Inquiry* newInquiry = (Inquiry*)malloc(sizeof(Inquiry));
+    strcpy(newInquiry->inquiry, inquiryMessage);
+    newInquiry->next = NULL;
+    if (queue->rear == NULL) {
+        queue->front = queue->rear = newInquiry;
+    } else {
+   
+        queue->rear->next = newInquiry;
+        queue->rear = newInquiry;
+    }
+    printf("Inquiry added: %s\n", inquiryMessage);
+}
+
+void resolveInquiry(Queue* queue) {
+    if (queue->front == NULL) {
+        printf("No inquiries to resolve.\n");
+        return;
+    }
+  
+    Inquiry* temp = queue->front;
+    queue->front = queue->front->next;
+
+   
+    if (queue->front == NULL) {
+        queue->rear = NULL;
+    }
+
+    printf("Resolved inquiry: %s\n", temp->inquiry);
+    free(temp); 
+}
+void displayInquiries(Queue* queue) {
+    if (queue->front == NULL) {
+        printf("No inquiries in the queue.\n");
+        return;
+    }
+
+    Inquiry* temp = queue->front;
+    printf("Customer Inquiries:\n");
+    while (temp != NULL) {
+        printf("- %s\n", temp->inquiry);
+        temp = temp->next;
+    }
+}
+int main() {
+    Queue* queue = createQueue();
+    addInquiry(queue, "Inquiry 1: Payment not processed.");
+    addInquiry(queue, "Inquiry 2: How to reset my password?");
+    addInquiry(queue, "Inquiry 3: Shipping delay inquiry.");
+    
+    displayInquiries(queue);
+    resolveInquiry(queue);
+    resolveInquiry(queue);
+    displayInquiries(queue);
+
+    resolveInquiry(queue);
+    resolveInquiry(queue);
+
+  
+    free(queue);
+
+    return 0;
+}
