@@ -1,0 +1,120 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<limits.h>
+
+#define INF INT_MAX
+
+int findMinKey(int* key,int* inMST,int numVertices){
+    int min=INF,minIndex;
+    for(int v=0;v<numVertices;v++){
+        if(inMST[v]==0 && key[v]<min){
+            min=key[v];
+            minIndex=v;
+        }
+    }
+    return minIndex;
+}
+
+void printMST(int* parent,int** graph,int numVertices){
+    printf("Edge \tWeight\n");
+    for(int i=1;i<numVertices;i++){
+        printf("%d - %d \t%d\n",parent[i],i,graph[i][parent[i]]);
+    }
+}
+
+void primMST(int** graph,int numVertices){
+    int* parent=(int*)malloc(numVertices*sizeof(int));
+    int* key=(int*)malloc(numVertices*sizeof(int));
+    int* inMST=(int*)calloc(numVertices,sizeof(int));
+
+    for(int i=0;i<numVertices;i++){
+        key[i]=INF;
+    }
+    key[0]=0; // Start from the first vertex
+    parent[0]=-1;// First node is the root of the MST
+
+    for(int count=0;count<numVertices - 1;count++){
+        int u=findMinKey(key,inMST,numVertices);
+        inMST[u]=1;
+
+        for(int v=0;v<numVertices;v++){
+            if(graph[u][v] && inMST[v]==0 && graph[u][v]<key[v]){
+                parent[v]=u;
+                key[v]=graph[u][v];
+            }
+        }
+    }
+
+    printMST(parent,graph,numVertices);
+
+    free(parent);
+    free(key);
+    free(inMST);
+}
+
+void updateGraph(int*** graph,int* numVertices){
+    int newVertex;
+    printf("Enter new number of towns(vertices): ");
+    scanf("%d",&newVertex);
+    
+    int oldVertices=*numVertices;
+    *numVertices=newVertex;
+    
+    *graph=(int**)realloc(*graph,newVertex*sizeof(int*));
+    for(int i=0;i<newVertex;i++){
+       (*graph)[i]=(int*)realloc((*graph)[i],newVertex*sizeof(int));
+        if(i >= oldVertices){
+            for(int j=0;j<newVertex;j++){
+               (*graph)[i][j]=INF;
+            }
+        }
+    }
+
+    for(int i=0;i<newVertex;i++){
+        for(int j=oldVertices;j<newVertex;j++){
+            printf("Enter weight of edge from %d to %d(0 if no edge): ",i,j);
+            scanf("%d",&(*graph)[i][j]);
+            if(i != j &&(*graph)[i][j]==0){
+               (*graph)[i][j]=INF;
+            }
+           (*graph)[j][i]=(*graph)[i][j];
+        }
+    }
+}
+
+int main(){
+    int numVertices;
+    printf("Enter the number of towns: ");
+    scanf("%d",&numVertices);
+
+    int** graph=(int**)malloc(numVertices*sizeof(int*));
+    for(int i=0;i<numVertices;i++){
+        graph[i]=(int*)malloc(numVertices*sizeof(int));
+        printf("Enter weights for town %d: ",i);
+        for(int j=0;j<numVertices;j++){
+            scanf("%d",&graph[i][j]);
+            if(i != j && graph[i][j]==0){
+                graph[i][j]=INF;
+            }
+        }
+    }
+
+    printf("Initial Minimum Spanning Tree:\n");
+    primMST(graph,numVertices);
+
+    char choice;
+    printf("Do you want to update the network(add new towns/edges)?(y/n): ");
+    scanf(" %c",&choice);
+    if(choice=='y' || choice=='Y'){
+        updateGraph(&graph,&numVertices);
+        printf("Updated Minimum Spanning Tree:\n");
+        primMST(graph,numVertices);
+    }
+
+    for(int i=0;i<numVertices;i++){
+        free(graph[i]);
+    }
+    free(graph);
+
+    return 0;
+}
