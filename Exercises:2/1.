@@ -1,0 +1,93 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_HISTORY 100
+
+
+typedef struct {
+    char urls[MAX_HISTORY][100]; 
+    int top;                     
+} BrowserHistory;
+
+
+void initializeHistory(BrowserHistory *history);
+void pushURL(BrowserHistory *history, const char *url);
+void popURL(BrowserHistory *history);
+void displayHistory(const BrowserHistory *history);
+
+int main() {
+    BrowserHistory history;
+    initializeHistory(&history);
+
+    int choice;
+    char url[100];
+
+    while (1) {
+        printf("\nBrowser History Feature\n");
+        printf("1. Visit New URL\n");
+        printf("2. Go Back (Remove Last URL)\n");
+        printf("3. Display History\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();
+
+        switch (choice) {
+            case 1:
+                printf("Enter URL: ");
+                fgets(url, sizeof(url), stdin);
+                url[strcspn(url, "\n")] = '\0'; 
+                pushURL(&history, url);
+                break;
+            case 2:
+                popURL(&history);
+                break;
+            case 3:
+                displayHistory(&history);
+                break;
+            case 4:
+                printf("Exiting program.\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+
+void initializeHistory(BrowserHistory *history) {
+    history->top = -1;  
+}
+
+
+void pushURL(BrowserHistory *history, const char *url) {
+    if (history->top >= MAX_HISTORY - 1) {
+        printf("History is full! Cannot add more URLs.\n");
+        return;
+    }
+    history->top++;
+    strcpy(history->urls[history->top], url);
+    printf("URL added to history.\n");
+}
+
+void popURL(BrowserHistory *history) {
+    if (history->top == -1) {
+        printf("No URLs in history to go back.\n");
+    } else {
+        printf("Going back from: %s\n", history->urls[history->top]);
+        history->top--;
+    }
+}
+
+void displayHistory(const BrowserHistory *history) {
+    if (history->top == -1) {
+        printf("No URLs in history.\n");
+    } else {
+        printf("\nCurrent Browser History:\n");
+        for (int i = history->top; i >= 0; i--) {
+            printf("URL %d: %s\n", history->top - i + 1, history->urls[i]);
+        }
+    }
+}
