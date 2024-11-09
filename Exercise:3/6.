@@ -1,0 +1,105 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+typedef struct RideRequest {
+    int requestId;           
+    char userName[50];      
+    char pickUpLocation[100]; 
+    struct RideRequest* next;
+} RideRequest;
+
+
+typedef struct Queue {
+    RideRequest* front;
+    RideRequest* rear;  
+} Queue;
+
+Queue* createQueue() {
+    Queue* queue = (Queue*)malloc(sizeof(Queue));
+    queue->front = queue->rear = NULL;
+    return queue;
+}
+
+void addRideRequest(Queue* queue, int requestId, const char* userName, const char* pickUpLocation) {
+   
+    RideRequest* newRequest = (RideRequest*)malloc(sizeof(RideRequest));
+    newRequest->requestId = requestId;
+    strcpy(newRequest->userName, userName);
+    strcpy(newRequest->pickUpLocation, pickUpLocation);
+    newRequest->next = NULL;
+
+ 
+    if (queue->rear == NULL) {
+        queue->front = queue->rear = newRequest;
+    } else {
+      
+        queue->rear->next = newRequest;
+        queue->rear = newRequest;
+    }
+    printf("Ride request %d added for %s at %s.\n", requestId, userName, pickUpLocation);
+}
+
+void serveRideRequest(Queue* queue) {
+    if (queue->front == NULL) {
+        printf("No ride requests to serve.\n");
+        return;
+    }
+
+   
+    RideRequest* temp = queue->front;
+    queue->front = queue->front->next;
+
+
+    if (queue->front == NULL) {
+        queue->rear = NULL;
+    }
+
+    printf("Serving ride request %d for %s at %s.\n", temp->requestId, temp->userName, temp->pickUpLocation);
+    free(temp); 
+}
+
+void displayRideRequests(Queue* queue) {
+    if (queue->front == NULL) {
+        printf("No pending ride requests.\n");
+        return;
+    }
+
+    RideRequest* temp = queue->front;
+    printf("Pending ride requests:\n");
+    while (temp != NULL) {
+        printf("Request ID: %d, User: %s, Pick-up: %s\n", temp->requestId, temp->userName, temp->pickUpLocation);
+        temp = temp->next;
+    }
+}
+
+int main() {
+    Queue* queue = createQueue();
+
+    
+    addRideRequest(queue, 1, "John Doe", "123 Main St");
+    addRideRequest(queue, 2, "Jane Smith", "456 Oak St");
+    addRideRequest(queue, 3, "Alice Johnson", "789 Pine St");
+
+    
+    displayRideRequests(queue);
+
+    
+    serveRideRequest(queue);
+    serveRideRequest(queue);
+
+    
+    displayRideRequests(queue);
+
+    
+    serveRideRequest(queue);
+
+    
+    serveRideRequest(queue);
+
+    
+    free(queue);
+
+    return 0;
+}
